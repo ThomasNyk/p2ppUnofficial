@@ -872,9 +872,9 @@ def parse_gcode_second_pass():
         # --------------------- PING PROCESSING
         if v.accessory_mode and (g[gcode.EXTRUDE] or g[gcode.RETRACT]):
             if not pings.check_accessorymode_second(g[gcode.E]):
-                gcode.issue_command(g, 0, True)
+                gcode.issue_command(g)
         else:
-            gcode.issue_command(g, 0, True)
+            gcode.issue_command(g)
             if g[gcode.EXTRUDE] and v.side_wipe_length == 0:
                 pings.check_connected_ping()
 
