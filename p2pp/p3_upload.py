@@ -91,7 +91,6 @@ def uploadfile(localfile, p3file):
                     _error = "Error [{}] {} ".format(response.status_code, response.reason)
 
         except Exception as e:
-            # print(e)
             gui.log_warning("Could not send file ({}) to P3 ({})".format(p3file, v.p3_hostname))
             gui.app.sync()
             _error = "Connection Error occurred!"

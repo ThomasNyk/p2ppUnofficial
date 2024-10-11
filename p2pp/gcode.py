@@ -172,7 +172,7 @@ def get_parameter(gcode_tupple, pv, defaultvalue=0):
 
 # SECTION GCODE -> OutputBuffer
 
-def issue_command(gcode_tupple, speed=0):
+def issue_command(gcode_tupple, speed=0, isPartOfPing=False):
 
     if not v.mapphysical or v.current_tool != v.mapphysicalfrom:
         if gcode_tupple[MOVEMENT]:
@@ -224,7 +224,8 @@ def issue_command(gcode_tupple, speed=0):
     s = create_commandstring(gcode_tupple)
     if speed:
         s = s.replace("%SPEED%", "{:0.0f}".format(speed))
-
+    if isPartOfPing:
+        s = s + ";PING"
     v.processed_gcode.append(s)
 
 

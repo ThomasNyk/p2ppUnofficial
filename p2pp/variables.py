@@ -200,6 +200,7 @@ _obsolete_layernumber = []
 lasthopup = 0
 create_tower_entry = False
 acc_ping_left = 0.0
+is_in_ping = False
 infill_speed = 0.0
 keep_hopspec = 0
 keep_hopcorrection = 0

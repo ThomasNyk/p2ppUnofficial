@@ -317,6 +317,8 @@ def header_generate_omega_palette2(job_name):
 
     if v.accessory_mode:
         for i in range(len(v.ping_extruder_position)):
+            print(v.ping_extrusion_between_pause[i])
+            print(hexify_float(v.ping_extrusion_between_pause[i]))
             header.append("O31 {} {}\n".format(hexify_float(v.ping_extruder_position[i]),
                                                hexify_float(v.ping_extrusion_between_pause[i])))
 
@@ -552,7 +554,7 @@ def generate_palette():
 
     if v.accessory_mode:
         for i in range(len(v.ping_extruder_position)):
-            print(v.ping_extrusion_between_pause[i])
+            #NOTE: 
             palette["pings"].append({
                 "length": float(int(v.ping_extruder_position[i]*100)/100.0),
                 "extrusion": v.ping_extrusion_between_pause[i]

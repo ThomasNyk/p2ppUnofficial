@@ -440,9 +440,8 @@ def parse_gcode_second_pass():
     # include firmware purge length accounting
     v.total_material_extruded = v.firmwarepurge
     v.material_extruded_per_color[v.current_tool] = v.firmwarepurge
-
+    
     for process_line_count in range(total_line_count):
-
         try:
             if process_line_count >= v.layer_end[0]:
                 v.last_parsed_layer += 1
@@ -831,7 +830,7 @@ def parse_gcode_second_pass():
                     g[gcode.COMMENT] += " prugespeed topped"
 
         # --------------------- GLOBAL PROCESSING
-
+        
         if g[gcode.UNRETRACT]:
             g[gcode.E] = min(-v.retraction, g[gcode.E])
             v.retraction += g[gcode.E]
@@ -850,6 +849,9 @@ def parse_gcode_second_pass():
                         gcode.issue_code(z_cor)
                         v.z_correction = None
                     if v.retraction < -0.01:
+                        if v.accessory_mode and v.acc_ping_left > 0:
+                            #This is sometimes inserted into a ping, so we need to take it into account
+                            v.acc_ping_left -= abs(v.retraction)
                         purgetower.unretract(v.retraction, -1, ";--- P2PP --- fixup retracts")
                     gcode.issue_code("G1 F{} ; P2PP Correct for speed, top to PURGETOPSPEED".format(min(v.purgetopspeed, v.keep_speed)))
                     gcode.issue_code(";P2PP END Z/E alignment processing")
@@ -860,17 +862,19 @@ def parse_gcode_second_pass():
                         gcode.issue_code(z_cor)
                         v.z_correction = None
                     if v.retraction < -0.01:
+                        if v.accessory_mode and v.acc_ping_left > 0:
+                            #This is sometimes inserted into a ping, so we need to take it into account
+                            v.acc_ping_left -= abs(v.retraction)
                         purgetower.unretract(v.retraction, -1, ";--- P2PP --- fixup retracts")
                     gcode.issue_code("G1 F{} ; P2PP Correct for speed, top to PURGETOPSPEED".format(min(v.purgetopspeed, v.keep_speed)))
                     g = gcode.create_command(";P2PP END Z/E alignment processing")
 
         # --------------------- PING PROCESSING
-
-        if v.accessory_mode and g[gcode.EXTRUDE]:
+        if v.accessory_mode and (g[gcode.EXTRUDE] or g[gcode.RETRACT]):
             if not pings.check_accessorymode_second(g[gcode.E]):
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True)
         else:
-            gcode.issue_command(g)
+            gcode.issue_command(g, 0, True)
             if g[gcode.EXTRUDE] and v.side_wipe_length == 0:
                 pings.check_connected_ping()
 
