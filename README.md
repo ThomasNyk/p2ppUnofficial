@@ -1,5 +1,11 @@
 # p2pp - **Palette2 Post Processing tool for PrusaSlicer/Slic3r PE**
 
+## IMPORTANT
+This is a backup of Tom Vandeneed's repository, as they decided p2pp was no longer working with newer slicers. 
+I have put up this repository with the last version of Tom's code. 
+I will be fixing stuff I personally have problems with if i am able.
+I will take this down if Tom wants me to.
+
 ## Getting strarted
 
 Have a look at the [P2PP Wiki pages](https://github.com/tomvandeneede/p2pp/wiki/Home) to get youstarted.
