@@ -142,7 +142,7 @@ previous_position_y = 0.0  # type: float
 # the splice information directly below the Palette2 header in GCODE.
 ping_extruder_position = []
 ping_extrusion_between_pause = []
-ping_retraction_amount = 3
+ping_retraction_amount = 1
 
 # hotswapcount: The number of hot-swaps generated during the print. This feature is currently unused.
 hotswap_count = 0  # type: int

@@ -46,7 +46,6 @@ G1 F{}
 """
 
 def acc_second_pause(retractCode, untractCode, feedRate):
-    gcode.issue_code(retractCode, True)
     gcode.issue_code(";PING PAUSE 2 START", True)
     gcode.issue_code(retractCode)
     gcode.issue_code("G4 S0")
@@ -171,9 +170,9 @@ def check_accessorymode_second(e):
             gcode.issue_code("; --- P2PP - ACCESSORY MODE PING PART 2", True)
             rt, urt = get_ping_retract_code()
             gcode.issue_code(";END OF EXTRUSIONPING: {}mm".format(20 - v.acc_ping_left), True)
-            gcode.issue_code("ExtrusionCC: {:10f}   :   SOFAR:".format(v.total_material_extruded), True)
+            #gcode.issue_code(";ExtrusionCC: {:10f}   :   SOFAR:".format(v.total_material_extruded), True)
             acc_second_pause(rt, urt, v.keep_speed)
-            gcode.issue_code("ExtrusionDD: {:10f}   :   SOFAR:".format(v.total_material_extruded), True)
+            #gcode.issue_code(";ExtrusionDD: {:10f}   :   SOFAR:".format(v.total_material_extruded), True)
 
             gcode.issue_code("; -------------------------------------", True)
             v.ping_interval = v.ping_interval * v.ping_length_multiplier

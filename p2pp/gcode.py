@@ -224,7 +224,7 @@ def issue_command(gcode_tupple, speed=0, isPartOfPing=False):
     s = create_commandstring(gcode_tupple)
     if speed:
         s = s.replace("%SPEED%", "{:0.0f}".format(speed))
-    if isPartOfPing or True:
+    if isPartOfPing:
         s = s + ";PING"
     v.processed_gcode.append(s)
 
