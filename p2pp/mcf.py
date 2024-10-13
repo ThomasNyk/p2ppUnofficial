@@ -851,6 +851,7 @@ def parse_gcode_second_pass():
                     if v.retraction < -0.01:
                         if v.accessory_mode and v.acc_ping_left > 0:
                             #This is sometimes inserted into a ping, so we need to take it into account
+                            gcode.issue_code("; Removing 1", True)
                             v.acc_ping_left -= abs(v.retraction)
                         purgetower.unretract(v.retraction, -1, ";--- P2PP --- fixup retracts")
                     gcode.issue_code("G1 F{} ; P2PP Correct for speed, top to PURGETOPSPEED".format(min(v.purgetopspeed, v.keep_speed)))
@@ -864,6 +865,7 @@ def parse_gcode_second_pass():
                     if v.retraction < -0.01:
                         if v.accessory_mode and v.acc_ping_left > 0:
                             #This is sometimes inserted into a ping, so we need to take it into account
+                            gcode.issue_code("; Removing 2", True)
                             v.acc_ping_left -= abs(v.retraction)
                         purgetower.unretract(v.retraction, -1, ";--- P2PP --- fixup retracts")
                     gcode.issue_code("G1 F{} ; P2PP Correct for speed, top to PURGETOPSPEED".format(min(v.purgetopspeed, v.keep_speed)))

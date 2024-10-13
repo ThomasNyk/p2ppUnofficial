@@ -80,18 +80,20 @@ def check_connected_ping():
 
 def get_ping_retract_code():
     if v.absolute_extruder:
-        return "G1 E{} F7200".format(v.absolute_counter-3), "G1 E{} F7200".format(v.absolute_counter)
+        gcode.issue_code("; counter: {}".format(v.absolute_counter))
+        v.acc_ping_left -= v.retraction
+        return "G1 E{} F7200".format(v.absolute_counter - v.ping_retraction_amount - v.retraction), "G1 E{} F7200".format(v.absolute_counter)
     else:
         return "G1 E-3.000 F7200", "G1 E3.000 F7200"
 
 def check_accessorymode_first():
     if (v.accessory_mode and not v.connected_accessory_mode) and check_first_ping_condition():
-
+        v.acc_ping_left = 20
         rt, urt = get_ping_retract_code()
 
-        v.acc_ping_left = 20
         gcode.issue_code("; ------------------------------------", True)
         gcode.issue_code("; --- P2PP - ACCESSORY MODE PING PART 1", True)
+        gcode.issue_code(";Current absolute position: " + str(v.total_material_extruded))
         gcode.issue_code(acc_first_pause.format(rt, urt, v.keep_speed))
         gcode.issue_code("; -------------------------------------", True)
 
@@ -116,7 +118,8 @@ def check_accessorymode_second(e):
             counter += e
             print("{:7.5f},{:7.5f},{:7.5f}".format(e, counter, v.acc_ping_left))
             if inPing:
-                gcode.issue_code(";START OF EXTRUSIONPING", True)
+                gcode.issue_code("; acc_ping_left: {}".format(v.acc_ping_left), True)
+                gcode.issue_code(";START OF EXTRUSIONPING: " + str(v.total_material_extruded + e), True)
                 inPing = False
             visited = True
         else:
@@ -142,7 +145,7 @@ def check_accessorymode_second(e):
             gcode.issue_code("; -------------------------------------", True)
             v.ping_interval = v.ping_interval * v.ping_length_multiplier
             v.ping_interval = min(v.max_ping_interval, v.ping_interval)
-            v.last_ping_extruder_position = v.total_material_extruded
+            v.last_ping_extruder_position = v.total_material_extruded 
             v.ping_extruder_position.append(v.total_material_extruded - 20 + v.acc_ping_left)
             print(20 - v.acc_ping_left)
             v.ping_extrusion_between_pause.append(20 - v.acc_ping_left)
