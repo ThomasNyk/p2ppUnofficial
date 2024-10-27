@@ -119,7 +119,7 @@ def create_commandstring(gcode_tupple):
 
         if gcode_tupple[E] is not None:
             p = p + " E{:0.5f}".format(gcode_tupple[E])
-        if gcode_tupple[F] is not None:
+        if gcode_tupple[F] is not None and not v.ignore_speed:
             p = p + " F{}".format(int(gcode_tupple[F]))
         if gcode_tupple[S] is not None:
             tmpv = float(gcode_tupple[S])
@@ -171,8 +171,8 @@ def get_parameter(gcode_tupple, pv, defaultvalue=0):
     return defaultvalue
 
 # SECTION GCODE -> OutputBuffer
-
-def issue_command(gcode_tupple, speed=0, isPartOfPing=False):
+import p2pp.gcode as gcode
+def issue_command(gcode_tupple, speed=0, isPartOfPing=False, debugStr="", ignoreSpeed=False):
 
     if not v.mapphysical or v.current_tool != v.mapphysicalfrom:
         if gcode_tupple[MOVEMENT]:
@@ -184,6 +184,7 @@ def issue_command(gcode_tupple, speed=0, isPartOfPing=False):
 
             if gcode_tupple[MOVEMENT] & 8:  # movement WITH extrusion
                 extrusion = gcode_tupple[E] * v.extrusion_multiplier
+                #gcode.issue_code("ExtrusionBB: {:10f}   :   SOFAR: {}".format(extrusion, v.total_material_extruded), True)
                 v.total_material_extruded += extrusion
                 v.material_extruded_per_color[v.current_tool] += extrusion
 
@@ -206,7 +207,6 @@ def issue_command(gcode_tupple, speed=0, isPartOfPing=False):
                     v.absolute_counter += gcode_tupple[E]
                     gcode_tupple[E] = v.absolute_counter
             else:
-
                 # preview simulation in this case there is NO Extruder movement
                 if gcode_tupple[MOVEMENT] & 1:
                     gp.prevx = gcode_tupple[X]
@@ -219,15 +219,17 @@ def issue_command(gcode_tupple, speed=0, isPartOfPing=False):
                 gcode_tupple[COMMAND] = "M82"
             if gcode_tupple[COMMAND] == "G92":
                 if gcode_tupple[E] is not None:
-                    v.absolute_counter = gcode_tupple[E]
+                    v.absolute_counter = gcode_tupple[E]            
 
     s = create_commandstring(gcode_tupple)
     if speed:
         s = s.replace("%SPEED%", "{:0.0f}".format(speed))
-    if isPartOfPing:
+    if debugStr and v.debug:
+        s = s + debugStr
+    if isPartOfPing and v.debug:
         s = s + ";PING"
     v.processed_gcode.append(s)
 
 
-def issue_code(code_string, is_comment=False):
-    issue_command(create_command(code_string, is_comment))
+def issue_code(code_string, is_comment=False, debugStr=""):
+    issue_command(create_command(code_string, is_comment), debugStr)

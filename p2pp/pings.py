@@ -13,7 +13,22 @@ from p2pp.formatnumbers import hexify_float
 
 # SECTION PPLUS PING GCODE
 
-acc_first_pause = """
+def acc_first_pause(retractCode, untractCode, feedRate):
+    gcode.issue_code(";PING PAUSE 1 START", True)
+    gcode.issue_code(retractCode)
+    gcode.issue_code("G4 S0")
+    gcode.issue_code("G4 P4000")
+    gcode.issue_code("G1")
+    gcode.issue_code("G4 P4000")
+    gcode.issue_code("G1")
+    gcode.issue_code("G4 P4000")
+    gcode.issue_code("G1")
+    gcode.issue_code("G4 P1000")
+    gcode.issue_code("G1")
+    gcode.issue_code(";PING PAUSE 1 END", True)
+    gcode.issue_code(untractCode)
+    gcode.issue_code("G1 F{}".format(feedRate))
+acc_first_pauseOLD = """
 ;PING PAUSE 1 START
 {}
 G4 S0
@@ -29,7 +44,20 @@ G1
 {}
 G1 F{}
 """
-acc_second_pause = """
+
+def acc_second_pause(retractCode, untractCode, feedRate):
+    gcode.issue_code(";PING PAUSE 2 START", True)
+    gcode.issue_code(retractCode)
+    gcode.issue_code("G4 S0")
+    gcode.issue_code("G4 P4000")
+    gcode.issue_code("G1")
+    gcode.issue_code("G4 P3000")
+    gcode.issue_code("G1")
+    gcode.issue_code(untractCode)
+    gcode.issue_code("G1 F{}".format(feedRate))
+    gcode.issue_code(";PING PAUSE 2 END", True)
+
+acc_second_pauseOLD = """
 ;PING PAUSE 2 START
 {}
 G4 S0
@@ -80,19 +108,25 @@ def check_connected_ping():
 
 def get_ping_retract_code():
     if v.absolute_extruder:
-        return "G1 E{} F7200".format(v.absolute_counter-3), "G1 E{} F7200".format(v.absolute_counter)
+        #v.acc_ping_left -= abs(v.retraction)
+        return "G1 E{} F2400".format(-v.ping_retraction_amount - v.retraction), "G1 E{} F2400".format(v.ping_retraction_amount)
     else:
         return "G1 E-3.000 F7200", "G1 E3.000 F7200"
 
 def check_accessorymode_first():
     if (v.accessory_mode and not v.connected_accessory_mode) and check_first_ping_condition():
-
-        rt, urt = get_ping_retract_code()
-
         v.acc_ping_left = 20
+        rt, urt = get_ping_retract_code()
+        v.last_ping_extruder_position = v.total_material_extruded
+        v.ping_extruder_position.append(v.total_material_extruded)
+        gcode.issue_code(";Ping start: {}".format(v.total_material_extruded), True)
         gcode.issue_code("; ------------------------------------", True)
+        if v.klipper:
+            gcode.issue_code("SET_PRESSURE_ADVANCE ADVANCE=0")
         gcode.issue_code("; --- P2PP - ACCESSORY MODE PING PART 1", True)
-        gcode.issue_code(acc_first_pause.format(rt, urt, v.keep_speed))
+        gcode.issue_code(";Current absolute position: " + str(v.total_material_extruded))
+        acc_first_pause(rt, urt, v.ping_speed)
+        v.ignore_speed = True
         gcode.issue_code("; -------------------------------------", True)
 
 
@@ -113,14 +147,20 @@ def check_accessorymode_second(e):
     if (v.accessory_mode and not v.connected_accessory_mode) and (v.acc_ping_left > 0):
         if v.acc_ping_left >= e:
             v.acc_ping_left -= e
+            #gcode.issue_code(";counter {}".format(counter), True)
             counter += e
-            print("{:7.5f},{:7.5f},{:7.5f}".format(e, counter, v.acc_ping_left))
+            #gcode.issue_code(";counter {} - acc: {}".format(counter, v.acc_ping_left), True)
+            #gcode.issue_code(";acc {}".format(v.acc_ping_left), True)
+
+            #gcode.issue_code(";ONE", True)
             if inPing:
-                gcode.issue_code(";START OF EXTRUSIONPING", True)
+                gcode.issue_code("; acc_ping_left: {}".format(v.acc_ping_left), True)
+                gcode.issue_code(";START OF EXTRUSIONPING: " + str(v.total_material_extruded + e), True)
                 inPing = False
+            #gcode.issue_code("; {:7.5f},{:7.5f},{:7.5f}".format(e, counter, v.acc_ping_left))
             visited = True
         else:
-            print("SPLIT")
+            #gcode.issue_code(";TWO - SPLIT", True)
             proc = v.acc_ping_left / e
             int_x = interpollate(v.previous_position_x, v.current_position_x, proc)
             int_y = interpollate(v.previous_position_y, v.current_position_y, proc)
@@ -129,27 +169,35 @@ def check_accessorymode_second(e):
             v.acc_ping_left = 0
             counter = 20
             nextline = "G1 X{:.4f} Y{:.4f} E{:.4f}; SPLIT END;PING".format(v.current_position_x, v.current_position_y, e)
+            v.ignore_speed = False
             rval = True
         if v.acc_ping_left <= 0.1:
+            #gcode.issue_code(";Three", True)
             if visited:
                 gcode.issue_code("G1 X{:.4f} Y{:.4f} E{:.4f}; Extra;PING".format(v.current_position_x, v.current_position_y, e))
                 rval = True
+            #    gcode.issue_code(";NOPE, FIVE")
+            v.ignore_speed = False
             gcode.issue_code("; -------------------------------------", True)
             gcode.issue_code("; --- P2PP - ACCESSORY MODE PING PART 2", True)
             rt, urt = get_ping_retract_code()
             gcode.issue_code(";END OF EXTRUSIONPING: {}mm".format(20 - v.acc_ping_left), True)
-            gcode.issue_code(acc_second_pause.format(rt, urt, v.keep_speed))
+            gcode.issue_code("G1 F{}".format(v.lastSpeed))
+            #gcode.issue_code(";ExtrusionCC: {:10f}   :   SOFAR:".format(v.total_material_extruded), True)
+            acc_second_pause(rt, urt, v.keep_speed)
+            #gcode.issue_code(";ExtrusionDD: {:10f}   :   SOFAR:".format(v.total_material_extruded), True)
+            if v.klipper:
+                gcode.issue_code("SET_PRESSURE_ADVANCE ADVANCE={}".format(v.pressureAdvanceAmount))
             gcode.issue_code("; -------------------------------------", True)
             v.ping_interval = v.ping_interval * v.ping_length_multiplier
             v.ping_interval = min(v.max_ping_interval, v.ping_interval)
-            v.last_ping_extruder_position = v.total_material_extruded
-            v.ping_extruder_position.append(v.total_material_extruded - 20 + v.acc_ping_left)
             print(20 - v.acc_ping_left)
             v.ping_extrusion_between_pause.append(20 - v.acc_ping_left)
             v.acc_ping_left = 0
             counter = 0
             inPing = True
             if nextline:
+                gcode.issue_code(";SIX")
                 gcode.issue_code(nextline)
 
     return rval

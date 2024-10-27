@@ -8,7 +8,7 @@ I will take this down if Tom wants me to.
 
 ## Getting strarted
 
-Have a look at the [P2PP Wiki pages](https://github.com/tomvandeneede/p2pp/wiki/Home) to get youstarted.
+Have a look at the [P2PP Wiki pages](https://github.com/ThomasNyk/p2ppUnofficial) to get youstarted.
 
 
 ## Acknowledgements

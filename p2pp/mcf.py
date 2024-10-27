@@ -457,6 +457,9 @@ def parse_gcode_second_pass():
 
         g = v.parsed_gcode[idx]
 
+        if g[gcode.F]:
+            v.lastSpeed = g[gcode.F]
+
         idx = idx + 1
 
         # ----- MEMORY MANAGEMENT - when 100K lines are processed, remove the top of the list
@@ -501,7 +504,7 @@ def parse_gcode_second_pass():
                                                v.wipe_tower_ysize)
                 purgetower.purge_generate_brim()
                 v.toolchange_processed = False
-            gcode.issue_command(g)
+            gcode.issue_command(g, 0, True, "; ASDASD3")
             continue
 
         elif g[gcode.MOVEMENT] == 0:
@@ -600,7 +603,7 @@ def parse_gcode_second_pass():
                     elif not v.generate_M0 and g[gcode.COMMAND] == "M0":
                         gcode.move_to_comment(g, "--P2PP-- remove M0 command")
 
-            gcode.issue_command(g)
+            gcode.issue_command(g, 0, True, "; ASDASD4")
             continue
 
         classupdate = not current_block_class == v.previous_block_classification
@@ -621,7 +624,7 @@ def parse_gcode_second_pass():
         if g[gcode.MOVEMENT] & 4:
             if v.disable_z:
                 gcode.move_to_comment(g, "-- P2PP - invalid move in delta tower")
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD5")
                 continue
             else:
                 v.current_position_z = g[gcode.Z]
@@ -637,7 +640,7 @@ def parse_gcode_second_pass():
                 v.restore_move_point = True
             # BLOCK END
             gcode.move_to_comment(g, "--P2PP-- tool unload")
-            gcode.issue_command(g)
+            gcode.issue_command(g, 0, True, "; ASDASD6")
             continue
 
         # --------------------- TOWER DELTA PROCESSING
@@ -646,7 +649,7 @@ def parse_gcode_second_pass():
             if classupdate:
 
                 if current_block_class == CLS_TOOL_PURGE:
-                    gcode.issue_command(g)
+                    gcode.issue_command(g, 0, True, "; ASDASD7")
                     entertower(v.last_parsed_layer * v.layer_height + v.first_layer_height)
                     continue
 
@@ -656,7 +659,7 @@ def parse_gcode_second_pass():
                                           gcode.MOVEMENT] & gcode.INTOWER) == gcode.INTOWER and v.current_layer_is_skippable
 
                     if not v.towerskipped:
-                        gcode.issue_command(g)
+                        gcode.issue_command(g, 0, True, "; ASDASD8")
                         entertower(v.last_parsed_layer * v.layer_height + v.first_layer_height)
                         continue
 
@@ -677,7 +680,7 @@ def parse_gcode_second_pass():
 
             if v.towerskipped:
                 gcode.move_to_comment(g, "--P2PP-- tower skipped")
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD9")
                 continue
         # --------------------- SIDE WIPE PROCESSING
         elif v.side_wipe:
@@ -710,7 +713,7 @@ def parse_gcode_second_pass():
                         inc = "INC_E"
 
                 gcode.move_to_comment(g, "--P2PP-- side wipe skipped ({})".format(inc))
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD10")
                 continue
 
             # for PS2.4
@@ -740,7 +743,7 @@ def parse_gcode_second_pass():
 
             if v.towerskipped or current_block_class in [CLS_BRIM, CLS_ENDGRID]:
                 gcode.move_to_comment(g, "--P2PP-- full purge skipped [Excluded]")
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD11")
                 continue
 
             if current_block_class in [CLS_TOOL_PURGE, CLS_ENDPURGE, CLS_EMPTY]:
@@ -750,7 +753,7 @@ def parse_gcode_second_pass():
                     gcode.move_to_comment(g, "--P2PP-- full purge skipped [Included]")
                 else:
                     gcode.move_to_comment(g, "--P2PP-- full purge skipped [Excluded]")
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD12")
                 continue
 
             if v.toolchange_processed and current_block_class == CLS_NORMAL:
@@ -762,7 +765,7 @@ def parse_gcode_second_pass():
                     # do not issue code here as the next code might require further processing such as retractioncorrection
                 else:
                     gcode.move_to_comment(g, "--P2PP-- full purge skipped")
-                    gcode.issue_command(g)
+                    gcode.issue_command(g, 0, True, "; ASDASD13")
                     continue
 
             if (g[gcode.MOVEMENT] & 11) > 8:  #moving extrusion
@@ -788,7 +791,7 @@ def parse_gcode_second_pass():
 
             if intower:
                 gcode.move_to_comment(g, "--P2PP-- full purge skipped [Excluded]")
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD14")
                 continue
 
         # --------------------- NO TOWER PROCESSING
@@ -812,7 +815,7 @@ def parse_gcode_second_pass():
                     v.temp2_stored_command = ""
 
                 gcode.issue_code("G1 F8640 ; correct speed")
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD15")
                 if v.wipe_remove_sparse_layers:
                     gcode.issue_code(
                         "G1 X{}  Y{} F8640 ;P2PP Position XY to avoid tower crash".format(v.current_position_x,
@@ -851,12 +854,13 @@ def parse_gcode_second_pass():
                     if v.retraction < -0.01:
                         if v.accessory_mode and v.acc_ping_left > 0:
                             #This is sometimes inserted into a ping, so we need to take it into account
+                            gcode.issue_code("; Removing 1", True)
                             v.acc_ping_left -= abs(v.retraction)
                         purgetower.unretract(v.retraction, -1, ";--- P2PP --- fixup retracts")
                     gcode.issue_code("G1 F{} ; P2PP Correct for speed, top to PURGETOPSPEED".format(min(v.purgetopspeed, v.keep_speed)))
                     gcode.issue_code(";P2PP END Z/E alignment processing")
                 else:
-                    gcode.issue_command(g)
+                    gcode.issue_command(g, 0, True, "; ASDASD16")
                     gcode.issue_code(";P2PP START Z/E alignment processing")
                     if v.z_correction is not None:
                         gcode.issue_code(z_cor)
@@ -864,6 +868,7 @@ def parse_gcode_second_pass():
                     if v.retraction < -0.01:
                         if v.accessory_mode and v.acc_ping_left > 0:
                             #This is sometimes inserted into a ping, so we need to take it into account
+                            gcode.issue_code("; Removing 2", True)
                             v.acc_ping_left -= abs(v.retraction)
                         purgetower.unretract(v.retraction, -1, ";--- P2PP --- fixup retracts")
                     gcode.issue_code("G1 F{} ; P2PP Correct for speed, top to PURGETOPSPEED".format(min(v.purgetopspeed, v.keep_speed)))
@@ -872,9 +877,9 @@ def parse_gcode_second_pass():
         # --------------------- PING PROCESSING
         if v.accessory_mode and (g[gcode.EXTRUDE] or g[gcode.RETRACT]):
             if not pings.check_accessorymode_second(g[gcode.E]):
-                gcode.issue_command(g)
+                gcode.issue_command(g, 0, True, "; ASDASD2")
         else:
-            gcode.issue_command(g)
+            gcode.issue_command(g, 0, False, "; ASDASD1")
             if g[gcode.EXTRUDE] and v.side_wipe_length == 0:
                 pings.check_connected_ping()
 
@@ -1184,7 +1189,7 @@ def p2pp_process_file(input_file, output_file):
         gui.create_logitem(
             "===========================================================================================", "green")
         gui.create_logitem(
-            "Go to https://github.com/tomvandeneede/p2pp/wiki for more information on P2PP Configuration", "green")
+            "Go to https://github.com/ThomasNyk/p2ppUnoffical for more information on P2PP Configuration", "green")
         gui.create_logitem(
             "===========================================================================================", "green")
 

@@ -4,7 +4,7 @@ script:
   - mkdir -p AppDir/usr/src
   - mkdir -p AppDir/share/icons
   - cd AppDir/usr/src
-  - git clone --branch master git://github.com/tomvandeneede/p2pp.git
+  - git clone --branch master git@github.com:ThomasNyk/p2ppUnofficial.git
   - cd ../../..
   - cp AppDir/usr/src/requirements.txt .
   - cp AppDir/usr/src/icon.ico /Appdir/share/icons

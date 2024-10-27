@@ -32,6 +32,8 @@ filament_short = [0, 0, 0, 0, 0, 0, 0, 0]
 
 retraction = 0.0
 
+debug = False
+
 retract_length = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
 filament_diameter = [1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75]
 filament_ids = []
@@ -142,6 +144,7 @@ previous_position_y = 0.0  # type: float
 # the splice information directly below the Palette2 header in GCODE.
 ping_extruder_position = []
 ping_extrusion_between_pause = []
+ping_retraction_amount = 1
 
 # hotswapcount: The number of hot-swaps generated during the print. This feature is currently unused.
 hotswap_count = 0  # type: int
@@ -274,6 +277,11 @@ expect_retract = False
 
 keep_speed = 0
 
+ping_speed = 7320
+
+#For when in ping
+ignore_speed = False
+
 purgetopspeed = 99999
 purgespeedmultiplier = 1.0
 wipe_remove_sparse_layers = False
@@ -312,7 +320,7 @@ regex_p2pp = re.compile("^;\s*P2PP\s+([^=]+)=?(.*)$")
 
 # conversion to absolute extruder:
 
-absolute_counter = -9999
+absolute_counter: float = -9999
 layer_end = []
 last_layer_processed = -1
 
@@ -337,6 +345,8 @@ bedtrace = False
 
 #klipper support
 klipper = False
+
+pressureAdvanceAmount = 0
 
 # disabke Z-movements during low tower
 disable_z = False
@@ -395,3 +405,5 @@ firmwarepurge = 0
 mapphysical = False
 mapphysicalfrom = -1
 mapphysicalto = -1
+
+lastSpeed = 0

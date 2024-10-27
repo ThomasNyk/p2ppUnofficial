@@ -7,6 +7,7 @@ __license__ = 'GPLv3'
 __maintainer__ = 'Tom Van den Eede'
 __email__ = 'P2PP@pandora.be'
 
+from decimal import ROUND_DOWN, Decimal
 import p2pp.gui as gui
 import p2pp.variables as v
 from p2pp.colornames import find_nearest_colour
@@ -489,11 +490,17 @@ def generate_algo( i, j):
 
 def generate_palette():
     if v.accessory_mode:
+        # palette = {"version": "3.0",
+        #        "drives": [],
+        #        "splices": [],
+        #        "pings": [],
+        #        "pingCount": len(v.ping_extruder_position),
+        #        "algorithms": []
+        #        }
         palette = {"version": "3.0",
                "drives": [],
                "splices": [],
                "pings": [],
-               "pingCount": len(v.ping_extruder_position),
                "algorithms": []
                }
     else:
@@ -531,8 +538,8 @@ def generate_palette():
                 {"id": v.inputs_recalc[v.splice_used_tool[i]], "length": round(v.splice_extruder_position[i] + v.autoloadingoffset, 4)})
 
         v.splice_list = []
-        palette["drives"] = v.inputs_recalc
-
+        
+        palette["drives"] = [value for value in v.inputs_recalc if value != 0] 
 
         for i in range(v.colors):
 
@@ -556,8 +563,9 @@ def generate_palette():
         for i in range(len(v.ping_extruder_position)):
             #NOTE: 
             palette["pings"].append({
-                "length": float(int(v.ping_extruder_position[i]*100)/100.0),
-                "extrusion": v.ping_extrusion_between_pause[i]
+                # "length": float(int(v.ping_extruder_position[i]*100)/100.0),
+                "length": float(f"{v.ping_extruder_position[i]:.4f}"),
+                "extrusion": float(f"{v.ping_extrusion_between_pause[i]:.4f}")
             })
 
     return json.dumps(palette, indent=2)

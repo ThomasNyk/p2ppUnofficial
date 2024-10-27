@@ -37,6 +37,7 @@ def check_splice_table():
 
 def check_config_parameters(keyword, value):
     keyword = keyword.upper().strip()
+    print(keyword)
 
     if value is None:
         value = ""
@@ -84,7 +85,6 @@ def check_config_parameters(keyword, value):
     if keyword == "PALETTE3":
         if len(v.printer_profile_string) == 16:
             gui.log_warning("Invalid Printer profile!  - P3 printer profile should be 32 characters ({})".format(v.printer_profile_string))
-
         v.palette3 = True
         v.colors = 4
         # Min first splice length for P3 == 130
@@ -527,6 +527,10 @@ def check_config_parameters(keyword, value):
     # process toolchanges the KLIPPER way
     if keyword == "KLIPPER_TOOLCHANGE":
         v.klipper = True
+        return
+    
+    if keyword == "PRESSURE_ADVANCE_AMOUNT":
+        v.pressureAdvanceAmount = floatparameter(value)
         return
 
     # close and continue even if there are warnings
