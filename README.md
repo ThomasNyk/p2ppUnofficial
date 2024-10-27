@@ -7,7 +7,7 @@ I will be fixing stuff I personally have problems with if i am able.
 I will take this down if Tom wants me to.
 
 ## Getting strarted
-
+TODO:
 Have a look at the [P2PP Wiki pages](https://github.com/ThomasNyk/p2ppUnofficial) to get youstarted.
 
 
@@ -28,6 +28,9 @@ If you like this software and want to support its development you can make a sma
 
 ## **Good luck & happy printing !!!**
 
+#Extra Features and fixes so far:
+- Fixed accessory mode ping accuracy
+- Added pressure advance control(for klipper only) - Eg(in printer start gcode): ;P2PP PRESSURE_ADVANCE_AMOUNT=0.05
 
 
 
