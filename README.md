@@ -9,6 +9,9 @@ There are still references to Tom Vandeneed, please do not bother him, he is no 
 There are no wikies anymore, but the pdf's still exist in this repo under docs
 A list of fixes and features will be added to the bottom as they happen.
 
+**ONLY THE PYTHON (.py) FILES WORK AT THE MOMENT**
+Use ```python3 p2pp/p2pp.py ...``` instead of ```p2pp.exe ...``` 
+
 ## Getting strarted
 TODO:
 Have a look at the [P2PP Wiki pages](https://github.com/ThomasNyk/p2ppUnofficial) to get youstarted.
@@ -33,7 +36,7 @@ If you like this software and want to support its development you can make a sma
 
 #Extra Features and fixes so far:
 - Fixed accessory mode ping accuracy
-- Added pressure advance control(for klipper only) - Eg(in printer start gcode): ;P2PP PRESSURE_ADVANCE_AMOUNT=0.05
+- Added pressure advance control(for klipper only) - Eg(in printer start gcode): ;P2PP PRESSURE_ADVANCE_AMOUNT=0.05. You will also have to make a gcode substitution for: "SET_PRESSURE_ADVANCE ADVANCE=0" to ""(nothing) in prusaslicer under print -> output options -> Other
 
 
 
