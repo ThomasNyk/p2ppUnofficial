@@ -78,7 +78,7 @@ if len(sys.argv) == 1:
         gui.create_logitem("Don't forget to complete the remaining Prusaslicer Configuration", "blue")
         gui.create_logitem("===========================================================================================",
                            "blue")
-        gui.create_logitem("Go to https://github.com/tomvandeneede/p2pp/wiki for more information on P2PP Configuration",
+        gui.create_logitem("Go to https://github.com/ThomasNyk/p2ppUnofficial for more information on P2PP Configuration",
                            "blue")
         gui.create_logitem("===========================================================================================",
                            "blue")
@@ -90,7 +90,7 @@ if len(sys.argv) == 1:
     except Exception as e:
         gui.create_emptyline()
         gui.log_warning("We're sorry but an unexpected error occurred while processing your file")
-        gui.log_warning("Please sumbit an issue report on https://github.com/tomvandeneede/p2pp")
+        gui.log_warning("Please sumbit an issue report on https://github.com/ThomasNyk/p2ppUnofficial")
         gui.create_emptyline()
         gui.create_logitem("<b>Error:</b> {}".format(e))
         tb = traceback.format_tb(e.__traceback__)
@@ -116,7 +116,7 @@ else:
     except Exception as e:
         gui.create_emptyline()
         gui.log_warning("We're sorry but an unexpected error occurred while processing your file")
-        gui.log_warning("Please sumbit an issue report on https://github.com/tomvandeneede/p2pp")
+        gui.log_warning("Please sumbit an issue report on https://github.com/ThomasNyk/p2ppUnofficial")
         gui.create_emptyline()
         gui.create_logitem("<b>Error:</b> {}".format(e))
         tb = traceback.format_tb(e.__traceback__)

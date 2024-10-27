@@ -1189,7 +1189,7 @@ def p2pp_process_file(input_file, output_file):
         gui.create_logitem(
             "===========================================================================================", "green")
         gui.create_logitem(
-            "Go to https://github.com/tomvandeneede/p2pp/wiki for more information on P2PP Configuration", "green")
+            "Go to https://github.com/ThomasNyk/p2ppUnoffical for more information on P2PP Configuration", "green")
         gui.create_logitem(
             "===========================================================================================", "green")
 
