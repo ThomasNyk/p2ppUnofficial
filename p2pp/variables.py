@@ -32,6 +32,8 @@ filament_short = [0, 0, 0, 0, 0, 0, 0, 0]
 
 retraction = 0.0
 
+debug = False
+
 retract_length = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
 filament_diameter = [1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75]
 filament_ids = []
@@ -275,6 +277,11 @@ expect_retract = False
 
 keep_speed = 0
 
+ping_speed = 7320
+
+#For when in ping
+ignore_speed = False
+
 purgetopspeed = 99999
 purgespeedmultiplier = 1.0
 wipe_remove_sparse_layers = False
@@ -339,6 +346,8 @@ bedtrace = False
 #klipper support
 klipper = False
 
+pressureAdvanceAmount = 0
+
 # disabke Z-movements during low tower
 disable_z = False
 
@@ -396,3 +405,5 @@ firmwarepurge = 0
 mapphysical = False
 mapphysicalfrom = -1
 mapphysicalto = -1
+
+lastSpeed = 0
